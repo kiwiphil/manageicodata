@@ -1,0 +1,17 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Symbol: {{ ico.symbol }}</h1>
+
+  <p><strong>Name:</strong> <a href="">{{ ico.name }}</a></p>  
+  <p><strong>Blockchain:</strong> {% for blockchain in ico.blockchain.all %} {{ blockchain }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>  
+
+  <div style="margin-left:20px;margin-top:20px">
+    <h4>Instances</h4>
+
+    {% for copy in ico.icoinstance_set.all %}
+    <hr>
+    <p class="text-muted"><strong>Id:</strong> {{copy.id}}</p>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>ICO List</h1>
+  {% if ico_list %}
+  <ul>
+    {% for ico in ico_list %}
+      <li>
+        <a href="{{ ico.get_absolute_url }}">{{ ico.symbol }}</a> ({{ico.name}})
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>There are no ICOs in the Database.</p>
+  {% endif %}       
+{% endblock %}

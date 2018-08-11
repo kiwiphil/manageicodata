@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>ICO Predict Home</h1>
+  <p>Welcome to ManageICOData, a website developed by <em>We R Data.Science</em>!</p>
+
+  <h2>Dynamic content</h2>
+  <p>The Database has the following record counts:</p>
+  <ul>
+    <li><strong>ICOs:</strong> {{ num_icos }}</li>
+    <li><strong>ICO Instances:</strong> {{ num_instances }}</li>
+    <li><strong>Blockchains:</strong> {{ num_blockchains }}</li>
+  </ul>
+  
+  <p>You have visited this page {{ num_visits }}{% if num_visits == 1 %} time{% else %} times{% endif %}.</p>
+{% endblock %}
