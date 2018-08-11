@@ -1,1 +1,1 @@
-web: gunicorn manageicodata.wsgi --log-file -
+web: gunicorn icopredict.wsgi --log-file -
