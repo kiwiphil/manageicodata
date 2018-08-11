@@ -26,7 +26,7 @@ SECRET_KEY = '11=qp*yp4ygqrf4_b83_lz%2y-&hubj4v@dvcf@oyi^ktupnfy'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["morning-earth-67267.herokuapp.com/", "127.0.0.1"]
 
 
 # Application definition
