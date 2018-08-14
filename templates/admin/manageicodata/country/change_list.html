@@ -1,0 +1,13 @@
+{% extends 'admin/change_list.html' %}
+
+{% block object-tools %}
+    <div>
+        <form action="populate/" method="POST">
+            {% csrf_token %}
+                <button type="submit">Populate</button>
+        </form>
+    </div>
+    <br />
+    {{ block.super }}
+{% endblock %}
+

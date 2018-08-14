@@ -47,6 +47,22 @@ class CapUnit(models.Model):
         return '{0}'.format(self.unit)
         
         
+class Country(models.Model):
+    """Model representing a Country."""
+    country_name = models.CharField(max_length=100, null=False, blank=False)
+    
+    class Meta:
+        ordering = ['country_name']
+    
+    def get_absolute_url(self):
+        """Returns the url to access a particular country instance."""
+        return reverse('country-detail', args=[str(self.id)])
+
+    def __str__(self):
+        """String for representing the Model object."""
+        return '{0}'.format(self.country_name)
+        
+        
 from django.urls import reverse #Used to generate URLs by reversing the URL patterns
 
 class ICO(models.Model):
@@ -82,33 +98,56 @@ class ICOInstance(models.Model):
     """Model representing a specific copy of a book (i.e. that can be borrowed from the library)."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text='Unique ID for this particular ICO')
     ico = models.ForeignKey('ICO', on_delete=models.SET_NULL, null=True) 
-    country = models.CharField(max_length=30)
-    start_sale_date = models.DateField(null=True, blank=True)
-    last_sale_date  = models.DateField(null=True, blank=True)
-    available_tokens = models.PositiveIntegerField(null=False, blank=False)
-    total_tokens = models.PositiveIntegerField(null=False, blank=False)
-    hard_cap = models.PositiveIntegerField(null=False, blank=False)
-    soft_cap = models.PositiveIntegerField(null=False, blank=False)
-    
-    cap_unit = models.ManyToManyField(CapUnit, help_text='Select a CapUnit for this ICO')
+    #country = models.CharField(max_length=30)
+    country = models.OneToOneField(Country, help_text='Select a Country for this ICO', on_delete=models.CASCADE)
+    start_sale_date = models.DateField(null=True, blank=True,
+                                       help_text='The date when ICO tokens first start to sell.')
+    last_sale_date  = models.DateField(null=True, blank=True,
+                                       help_text='The last date when ICO tokens will be sold.')
+    available_tokens = models.PositiveIntegerField(null=False, blank=False,
+                                       help_text='The number of tokens available for sale to the public.')
+    total_tokens = models.PositiveIntegerField(null=False, blank=False,
+                                       help_text='The total number of tokens in this ICO')
+    hard_cap = models.PositiveIntegerField(null=False, blank=False,
+                                       help_text='The maximum number of tokens to be sold for this ICO.')
+    soft_cap = models.PositiveIntegerField(null=False, blank=False,
+                                       help_text='The minimum number of tokens to be sold if ICO will go ahead.')
+    cap_unit = models.ManyToManyField(CapUnit, 
+                                       help_text='Select a CapUnit for this ICO')
 
-    core_investors = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False)
-    working_capital = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False)
-    cost_of_sales = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False)
-    externals = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False)
-    public = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False)
-    number_of_rounds = models.PositiveIntegerField(null=False, blank=False)
+    core_investors = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False,
+                                       help_text='something informative.')
+    working_capital = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False,
+                                       help_text='something informative.')
+    cost_of_sales = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False,
+                                       help_text='something informative.')
+    externals = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False,
+                                       help_text='something informative.')
+    public = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False,
+                                       help_text='something informative.')
+    number_of_rounds = models.PositiveIntegerField(null=False, blank=False,
+                                       help_text='The number of rounds in the ICO Token Sale.')
     
-    highest_mentioned_price = models.DecimalField(max_digits=5, decimal_places=2,null=False, blank=False)
-    lowest_mentioned_price = models.DecimalField(max_digits=5, decimal_places=2,null=False, blank=False)
-    price_currency = models.ManyToManyField(Currency, help_text='Select a Currency for this ICO')
+    highest_mentioned_price = models.DecimalField(max_digits=5, decimal_places=2,null=False, blank=False,
+                                       help_text='Highest price a token sold for during ICO.')
+    lowest_mentioned_price = models.DecimalField(max_digits=5, decimal_places=2,null=False, blank=False,
+                                       help_text='Lowest price a token sold for during ICO.')
+    price_currency = models.ManyToManyField(Currency, 
+                                       help_text='The currency used to buy this ICOs tokens.')
+    
+    comments = models.TextField(max_length=250, null=False, blank=True, default="",
+                                       help_text='Report any anomalies and/or ask questions.')
+                                       
+    last_user = models.CharField(max_length=50, null=False, blank=True, default="")
+    last_update = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['ico']
 
     def __str__(self):
         """String for representing the Model object."""
-        return '{0} ({1})'.format(self.id, self.ico.symbol)
+        return '{0} ({1})'.format(self.id, self.ico.symbol) 
+        
         
 
         
