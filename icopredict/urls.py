@@ -29,20 +29,15 @@ from django.views.generic import RedirectView
 #    path('manageicodata/', include('manageicodata.urls')),
 #] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-from django.contrib import admin
-from django.urls import path
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-]
-
-
 from django.urls import path
 from django.contrib import admin
 
 # Use include() to add URLS from the catalog application and authentication system
 from django.urls import include
 
+admin.site.site_header = 'Manage ICO Data'
+admin.site.site_title = 'Manage ICO Data'
+admin.site.index_title = 'Manage ICO Data'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -74,5 +69,6 @@ urlpatterns += [
 urlpatterns += [
     path('accounts/', include('django.contrib.auth.urls')),
 ]
+
 
 

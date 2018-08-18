@@ -10,7 +10,12 @@ from django.conf.urls import url
 from django.urls import include, path
 
 import pycountry
+import csv
 from django.utils import timezone
+from django.shortcuts import render, redirect
+
+from io import TextIOWrapper
+
 
 #admin.site.register(Blockchain)
 admin.site.register(CapUnit)
@@ -18,9 +23,13 @@ admin.site.register(Currency)
 #admin.site.register(ICO)
 #admin.site.register(ICOInstance)
 
+class CsvImportForm(forms.Form):
+    csv_file = forms.FileField()
+
+
 # Define the admin class
 class BlockchainAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ['blockchain_name']
     pass
 
 # Register the admin class with the associated model
@@ -59,11 +68,62 @@ class CountryAdmin(admin.ModelAdmin):
     
     pass
 
+#
+class ICOForm(forms.ModelForm):
+    class Meta:
+        model = ICO
+        fields = '__all__'
+        
+    def save(self, commit=True):
+        instance = super(ICOForm, self).save(commit=False)
+        instance.last_user = self.request.user.username
+        instance.last_update = timezone.now()
+        if commit: instance.save()
+        return instance
 
 # Register the Admin classes for ICO using the decorator
 @admin.register(ICO)
 class ICOAdmin(admin.ModelAdmin):
-    list_display = ['symbol', 'name', 'display_blockchain']
+    form = ICOForm
+    list_display = ['symbol', 'name', 'last_user', 'last_update'] #'display_blockchain']
+    change_list_template = "admin/manageicodata/ico/change_list.html"
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('import-csv/', self.import_csv),
+        ]
+        return my_urls + urls
+        
+    # This is important to have because this provides the
+    # "request" object to "clean" method
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(ICOAdmin, self).get_form(request, obj=obj, **kwargs)
+        form.request = request
+        return form
+        
+    def import_csv(self, request):
+        if request.method == "POST":
+            csv_file = request.FILES["csv_file"]
+            csv_file = TextIOWrapper(csv_file)
+            reader = csv.reader(csv_file)
+            #skip header
+            next(reader)
+            # Create ICO objects from passed in data
+            for row in reader:
+                if row[0]=="": continue
+                _, created = ICO.objects.get_or_create(
+                     symbol      = row[0],
+                     name        = row[1],
+                     last_user   = request.user.username,
+                     last_update = timezone.now(),
+                     )
+            self.message_user(request, "Your CSV file has been imported")
+            return redirect("..")
+        form = CsvImportForm()
+        payload = {"form": form}
+        return render(request, "admin/manageicodata/ico/csv_form.html", payload)
+    
     pass
 
 #
@@ -105,13 +165,14 @@ class ICOInstanceForm(forms.ModelForm):
 class ICOInstanceAdmin(admin.ModelAdmin):
     form = ICOInstanceForm 
     actions = ['export_csv']
-    list_display = ['id', 'ico', 'last_user', 'last_update', 'start_sale_date',
+    list_display = ['ico', 'display_blockchain', 'last_user', 'last_update', 
+                    'start_sale_date',
                     'last_sale_date']
-    list_filter = ['country', 'cap_unit', 'number_of_rounds',
+    list_filter = ['country', 'blockchain_name', 'cap_unit', 'number_of_rounds',
                    'start_sale_date', 'last_sale_date', 'price_currency'] 
     fieldsets = (
         (None, {
-            'fields': ('id', 'ico', 'country')
+            'fields': ('ico', 'blockchain_name', 'country') 
             }),
             ('Token Numbers', {
             'fields': (('available_tokens', 'total_tokens'), ('hard_cap', 
@@ -133,6 +194,10 @@ class ICOInstanceAdmin(admin.ModelAdmin):
             }),
     ) 
     
+    def display_blockchain(self, obj):
+        return ". ".join([p.blockchain_name for p in obj.blockchain_name.all()[:3]]) 
+    display_blockchain.short_description = "Blockchain"
+    
     # This is important to have because this provides the
     # "request" object to "clean" method
     def get_form(self, request, obj=None, **kwargs):
@@ -141,7 +206,6 @@ class ICOInstanceAdmin(admin.ModelAdmin):
         return form
     
     def export_csv(self, request, queryset):
-        import csv
         from django.utils.encoding import smart_str
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=ico_instances.csv'
@@ -149,7 +213,6 @@ class ICOInstanceAdmin(admin.ModelAdmin):
         response.write(u'\ufeff'.encode('utf8')) 
         # write column headings
         writer.writerow([
-                smart_str(u"id"),
                 smart_str(u"ico"),
                 smart_str(u"country"),
         ])
@@ -157,7 +220,6 @@ class ICOInstanceAdmin(admin.ModelAdmin):
         num_rows = len(queryset)
         for obj in queryset:
             writer.writerow([
-                smart_str(obj.pk),
                 smart_str(obj.ico),
                 smart_str(obj.country),
             ])

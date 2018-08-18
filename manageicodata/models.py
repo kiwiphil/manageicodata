@@ -3,10 +3,10 @@ from django.db import models
 # Create your models here.        
 class Blockchain(models.Model):
     """Model representing a blockchain."""
-    name = models.CharField(max_length=10, null=False, blank=False)
+    blockchain_name = models.CharField(primary_key=True, max_length=10, null=False, blank=False)
     
     class Meta:
-        ordering = ['name']
+        ordering = ['blockchain_name']
     
     def get_absolute_url(self):
         """Returns the url to access a particular author instance."""
@@ -14,11 +14,11 @@ class Blockchain(models.Model):
 
     def __str__(self):
         """String for representing the Model object."""
-        return '{0}'.format(self.name)
+        return '{0}'.format(self.blockchain_name)
         
 class Currency(models.Model):
     """Model representing a currency."""
-    symbol = models.CharField(max_length=3, null=False, blank=False)
+    symbol = models.CharField(primary_key=True, max_length=3, null=False, blank=False)
     
     class Meta:
         ordering = ['symbol']
@@ -33,7 +33,7 @@ class Currency(models.Model):
         
 class CapUnit(models.Model):
     """Model representing a cap unit."""
-    unit = models.CharField(max_length=6, null=False, blank=False)
+    unit = models.CharField(primary_key=True, max_length=6, null=False, blank=False)
     
     class Meta:
         ordering = ['unit']
@@ -49,7 +49,7 @@ class CapUnit(models.Model):
         
 class Country(models.Model):
     """Model representing a Country."""
-    country_name = models.CharField(max_length=100, null=False, blank=False)
+    country_name = models.CharField(primary_key=True, max_length=100, null=False, blank=False)
     
     class Meta:
         ordering = ['country_name']
@@ -67,22 +67,10 @@ from django.urls import reverse #Used to generate URLs by reversing the URL patt
 
 class ICO(models.Model):
     """Model representing an ICO (but not a specific ICO)."""
-    symbol = models.CharField(max_length=10)
+    symbol = models.CharField(primary_key=True, max_length=10)
     name   = models.CharField(max_length=50)
-    
-    # Foreign Key used because book can only have one author, but authors can have multiple books
-    # Author as a string rather than object because it hasn't been declared yet in the file.
-    #summary = models.TextField(max_length=1000, help_text='Enter a brief description of the book')
-    #isbn = models.CharField('ISBN', max_length=13, help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn">ISBN number</a>')
-    
-    # ManyToManyField used because genre can contain many books. Books can cover many genres.
-    # Genre class has already been defined so we can specify the object above.
-    blockchain = models.ManyToManyField(Blockchain, help_text='Select a Blockchain for this ICO')
-    
-    def display_blockchain(self):
-        return ". ".join(blockchain.name for blockchain in self.blockchain.all()[:3])
-        
-    display_blockchain.short_description = "Blockchain"
+    last_user = models.CharField(max_length=50, null=False, blank=True, default="")
+    last_update = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         """String for representing the Model object."""
@@ -96,10 +84,14 @@ import uuid # Required for unique book instances
 
 class ICOInstance(models.Model):
     """Model representing a specific copy of a book (i.e. that can be borrowed from the library)."""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text='Unique ID for this particular ICO')
+    #id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text='Unique ID for this particular ICO')
     ico = models.ForeignKey('ICO', on_delete=models.SET_NULL, null=True) 
-    #country = models.CharField(max_length=30)
-    country = models.OneToOneField(Country, help_text='Select a Country for this ICO', on_delete=models.CASCADE)
+    
+    blockchain_name = models.ManyToManyField(Blockchain, 
+                                       help_text='Select a Blockchain for this ICO')
+    
+    country = models.ForeignKey('Country', on_delete=models.SET_NULL, null=True,
+                                       help_text='Select a Country for this ICO')
     start_sale_date = models.DateField(null=True, blank=True,
                                        help_text='The date when ICO tokens first start to sell.')
     last_sale_date  = models.DateField(null=True, blank=True,
@@ -143,10 +135,10 @@ class ICOInstance(models.Model):
     
     class Meta:
         ordering = ['ico']
-
+        
     def __str__(self):
         """String for representing the Model object."""
-        return '{0} ({1})'.format(self.id, self.ico.symbol) 
+        return str(self.ico)
         
         
 
