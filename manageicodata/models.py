@@ -64,13 +64,20 @@ class Country(models.Model):
         
         
 from django.urls import reverse #Used to generate URLs by reversing the URL patterns
+import uuid # Required for unique book instances
+
 
 class ICO(models.Model):
     """Model representing an ICO (but not a specific ICO)."""
-    symbol = models.CharField(primary_key=True, max_length=10)
-    name   = models.CharField(max_length=50)
+    #id = models.UUIDField(primary_key=True, default=uuid.uuid4,
+    #                      help_text='Unique ID for this particular ICO')
+    symbol = models.CharField(max_length=15, null=True)
+    name   = models.CharField(max_length=50, null=True)
     last_user = models.CharField(max_length=50, null=False, blank=True, default="")
     last_update = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together=(("symbol", "name"),)
     
     def __str__(self):
         """String for representing the Model object."""
@@ -80,12 +87,12 @@ class ICO(models.Model):
         """Returns the url to access a detail record for this ICO."""
         return reverse('ico-detail', args=[str(self.id)])
         
-import uuid # Required for unique book instances
+
 
 class ICOInstance(models.Model):
     """Model representing a specific copy of a book (i.e. that can be borrowed from the library)."""
     #id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text='Unique ID for this particular ICO')
-    ico = models.ForeignKey('ICO', on_delete=models.SET_NULL, null=True) 
+    ico = models.ForeignKey('ICO', on_delete=models.CASCADE, null=True) 
     
     blockchain_name = models.ManyToManyField(Blockchain, 
                                        help_text='Select a Blockchain for this ICO')
@@ -100,11 +107,19 @@ class ICOInstance(models.Model):
                                        help_text='The number of tokens available for sale to the public.')
     total_tokens = models.PositiveIntegerField(null=False, blank=False,
                                        help_text='The total number of tokens in this ICO')
+    total_tokens_not_mentioned = models.BooleanField(default=False,
+                                       help_text='Check if Total Tokens not mentioned.')
+    total_tokens_unlimited = models.BooleanField(default=False,
+                                       help_text='Check if Total Tokens are unlimited.') 
     hard_cap = models.PositiveIntegerField(null=False, blank=False,
-                                       help_text='The maximum number of tokens to be sold for this ICO.')
+                                       help_text='The maximum number of tokens to be sold for this ICO.')                               
+    hard_cap_unit = models.ManyToManyField(CapUnit, 
+                                       related_name='%(class)s_hardcap',
+                                       help_text='Select a CapUnit for this ICO')
     soft_cap = models.PositiveIntegerField(null=False, blank=False,
                                        help_text='The minimum number of tokens to be sold if ICO will go ahead.')
-    cap_unit = models.ManyToManyField(CapUnit, 
+    soft_cap_unit = models.ManyToManyField(CapUnit, 
+                                       related_name='%(class)s_softcap',   
                                        help_text='Select a CapUnit for this ICO')
 
     core_investors = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False,

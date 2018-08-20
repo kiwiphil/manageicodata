@@ -87,6 +87,7 @@ class ICOAdmin(admin.ModelAdmin):
     form = ICOForm
     list_display = ['symbol', 'name', 'last_user', 'last_update'] #'display_blockchain']
     change_list_template = "admin/manageicodata/ico/change_list.html"
+    list_filter = ['symbol', 'name']
     
     def get_urls(self):
         urls = super().get_urls()
@@ -168,15 +169,17 @@ class ICOInstanceAdmin(admin.ModelAdmin):
     list_display = ['ico', 'display_blockchain', 'last_user', 'last_update', 
                     'start_sale_date',
                     'last_sale_date']
-    list_filter = ['country', 'blockchain_name', 'cap_unit', 'number_of_rounds',
+    list_filter = ['country', 'blockchain_name', 'hard_cap_unit', 'soft_cap_unit', 
+                   'number_of_rounds',
                    'start_sale_date', 'last_sale_date', 'price_currency'] 
     fieldsets = (
         (None, {
             'fields': ('ico', 'blockchain_name', 'country') 
             }),
             ('Token Numbers', {
-            'fields': (('available_tokens', 'total_tokens'), ('hard_cap', 
-                       'soft_cap'), 'cap_unit')
+            'fields': (('available_tokens', 'total_tokens', 'total_tokens_not_mentioned',
+                        'total_tokens_unlimited'), 
+                       ('hard_cap', 'soft_cap'), ('hard_cap_unit', 'soft_cap_unit'))
             }),
             ('Token Distribution', {
             'fields': ('core_investors', 'working_capital', 'cost_of_sales',
