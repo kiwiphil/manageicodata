@@ -46,11 +46,6 @@ class Migration(migrations.Migration):
             name='symbol',
             field=models.CharField(max_length=15, null=True),
         ),
-        migrations.AlterField(
-            model_name='icoinstance',
-            name='ico',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='manageicodata.ICO'),
-        ),
         migrations.AlterUniqueTogether(
             name='ico',
             unique_together={('symbol', 'name')},
