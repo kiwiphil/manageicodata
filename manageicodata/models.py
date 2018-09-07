@@ -92,7 +92,7 @@ class ICO(models.Model):
 class ICOInstance(models.Model):
     """Model representing a specific copy of a book (i.e. that can be borrowed from the library)."""
     #id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text='Unique ID for this particular ICO')
-    ico = models.ForeignKey('ICO', on_delete=models.CASCADE, null=True) 
+    ico = models.ForeignKey('ICO', on_delete=models.CASCADE, null=True, default=1) 
     
     blockchain_name = models.ManyToManyField(Blockchain, 
                                        help_text='Select a Blockchain for this ICO')
