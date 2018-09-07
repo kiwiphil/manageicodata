@@ -103,46 +103,46 @@ class ICOInstance(models.Model):
                                        help_text='The date when ICO tokens first start to sell.')
     last_sale_date  = models.DateField(null=True, blank=True,
                                        help_text='The last date when ICO tokens will be sold.')
-    available_tokens = models.PositiveIntegerField(null=False, blank=False,
+    available_tokens = models.DecimalField(max_digits=14, decimal_places=0, null=False, blank=False,
                                        help_text='The number of tokens available for sale to the public.')
-    total_tokens = models.PositiveIntegerField(null=False, blank=False,
+    total_tokens = models.DecimalField(max_digits=14, decimal_places=0, null=False, blank=False,
                                        help_text='The total number of tokens in this ICO')
     total_tokens_not_mentioned = models.BooleanField(default=False,
                                        help_text='Check if Total Tokens not mentioned.')
     total_tokens_unlimited = models.BooleanField(default=False,
                                        help_text='Check if Total Tokens are unlimited.') 
-    hard_cap = models.PositiveIntegerField(null=False, blank=False,
+    hard_cap = models.DecimalField(max_digits=14, decimal_places=0, null=False, blank=False,
                                        help_text='The maximum number of tokens to be sold for this ICO.')                               
     hard_cap_unit = models.ManyToManyField(CapUnit, 
                                        related_name='%(class)s_hardcap',
                                        help_text='Select a CapUnit for this ICO')
-    soft_cap = models.PositiveIntegerField(null=False, blank=False,
+    soft_cap = models.DecimalField(max_digits=14, decimal_places=0, null=False, blank=False,
                                        help_text='The minimum number of tokens to be sold if ICO will go ahead.')
     soft_cap_unit = models.ManyToManyField(CapUnit, 
                                        related_name='%(class)s_softcap',   
                                        help_text='Select a CapUnit for this ICO')
 
-    core_investors = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False,
+    core_investors = models.DecimalField(max_digits=5, decimal_places=4,null=False, blank=False,
                                        help_text='something informative.')
-    working_capital = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False,
+    working_capital = models.DecimalField(max_digits=5, decimal_places=4,null=False, blank=False,
                                        help_text='something informative.')
-    cost_of_sales = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False,
+    cost_of_sales = models.DecimalField(max_digits=5, decimal_places=4,null=False, blank=False,
                                        help_text='something informative.')
-    externals = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False,
+    externals = models.DecimalField(max_digits=5, decimal_places=4,null=False, blank=False,
                                        help_text='something informative.')
-    public = models.DecimalField(max_digits=3, decimal_places=2,null=False, blank=False,
+    public = models.DecimalField(max_digits=5, decimal_places=4,null=False, blank=False,
                                        help_text='something informative.')
     number_of_rounds = models.PositiveIntegerField(null=False, blank=False,
                                        help_text='The number of rounds in the ICO Token Sale.')
     
-    highest_mentioned_price = models.DecimalField(max_digits=5, decimal_places=2,null=False, blank=False,
+    highest_mentioned_price = models.DecimalField(max_digits=12, decimal_places=6,null=False, blank=False,
                                        help_text='Highest price a token sold for during ICO.')
-    lowest_mentioned_price = models.DecimalField(max_digits=5, decimal_places=2,null=False, blank=False,
+    lowest_mentioned_price = models.DecimalField(max_digits=12, decimal_places=6,null=False, blank=False,
                                        help_text='Lowest price a token sold for during ICO.')
     price_currency = models.ManyToManyField(Currency, 
                                        help_text='The currency used to buy this ICOs tokens.')
     
-    comments = models.TextField(max_length=250, null=False, blank=True, default="",
+    comments = models.TextField(max_length=400, null=False, blank=True, default="",
                                        help_text='Report any anomalies and/or ask questions.')
                                        
     last_user = models.CharField(max_length=50, null=False, blank=True, default="")
