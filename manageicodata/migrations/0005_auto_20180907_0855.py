@@ -11,36 +11,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='icoinstance',
-            name='cap_unit',
-        ),
-        migrations.AddField(
-            model_name='ico',
-            name='id',
-            field=models.AutoField(auto_created=True, default=1, primary_key=True, serialize=False, verbose_name='ID'),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='icoinstance',
-            name='hard_cap_unit',
-            field=models.ManyToManyField(help_text='Select a CapUnit for this ICO', related_name='icoinstance_hardcap', to='manageicodata.CapUnit'),
-        ),
-        migrations.AddField(
-            model_name='icoinstance',
-            name='soft_cap_unit',
-            field=models.ManyToManyField(help_text='Select a CapUnit for this ICO', related_name='icoinstance_softcap', to='manageicodata.CapUnit'),
-        ),
-        migrations.AddField(
-            model_name='icoinstance',
-            name='total_tokens_not_mentioned',
-            field=models.BooleanField(default=False, help_text='Check if Total Tokens not mentioned.'),
-        ),
-        migrations.AddField(
-            model_name='icoinstance',
-            name='total_tokens_unlimited',
-            field=models.BooleanField(default=False, help_text='Check if Total Tokens are unlimited.'),
-        ),
+        
         migrations.AlterField(
             model_name='ico',
             name='name',
@@ -115,9 +86,5 @@ class Migration(migrations.Migration):
             model_name='icoinstance',
             name='working_capital',
             field=models.DecimalField(decimal_places=4, help_text='something informative.', max_digits=5),
-        ),
-        migrations.AlterUniqueTogether(
-            name='ico',
-            unique_together={('symbol', 'name')},
         ),
     ]
